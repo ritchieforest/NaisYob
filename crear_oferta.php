@@ -86,10 +86,10 @@
           <li class="nav-item active">
             <a class="nav-link" href="mi_perfil.php">Mi Perfil</a>
           </li>
-          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==2 ) {
+          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==3) {
            ?>
            <li class="nav-item">
-            <a class="nav-link" href="about.php">Filtros de Ofertas de Trabajo</a>
+            <a class="nav-link" href="ofertas_trabajo.php">Filtros de Ofertas de Trabajo</a>
           </li>
         <?php } ?>
         <?php if($_SESSION['tipo']==2 or $_SESSION['tipo']==3){  ?>

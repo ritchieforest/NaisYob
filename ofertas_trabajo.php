@@ -65,9 +65,9 @@
 <header>
   <div  class="alert alert-info" style="position: relative;  top:100px">
     <h1>Bienvenido</h1>
-    <h6>Desea Buscar Empleados para fortalecer su empresa</h6>
+    <h6>Desea Buscar Trabajos</h6>
     <select class="form-control" id="name">
-     <option>Eliga un Rubro por el que desee buscar empleados</option>
+     <option>Eliga un Rubro por el que desee buscar empleos</option>
      <option value="1">Informatica</option> 
    </select>
  </div>
@@ -78,11 +78,12 @@
 <?php 
 if (isset($_GET['id_dato'])) {
   include 'ajax/conexion.php';
-  $sql="select r.desc_rubro as rubro,c.nombre_cargo as cargo,u.user_name as email ,s.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil from persona p 
-  inner join empleado e on p.id_persona=e.rela_persona inner join cargo_empleado ce on e.id_empleado=ce.rela_empleado 
-  inner join cargo c on c.id_cargo=ce.rela_cargo inner join rubro r on r.id_rubro=c.rela_rubro
-  inner join usuario u on p.id_persona=u.rela_persona 
-  inner join sexo s on s.id_sexo=p.rela_sexo where r.id_rubro=".$_GET['id_dato']."";
+  $sql="select r.desc_rubro as rubro,u.user_name as email ,sol.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil,o.desc_oferta as oferta,o.horario as horario,o.fecha_desde as desde, o.fecha_hasta as hasta from oferta_empleo o
+  inner join empleador e on e.id_empleador=rela_empleador
+  inner join persona p on p.id_persona=e.rela_persona
+  inner join usuario u on p.id_persona=u.rela_persona
+  inner join rubro r on r.id_rubro=o.rela_rubro
+  inner join sexo sol on sol.id_sexo=o.rela_sexo  where r.id_rubro=".$_GET['id_dato']."";
   $queryEmpleados=$pdo->query($sql);
 
   ?>
@@ -90,18 +91,16 @@ if (isset($_GET['id_dato'])) {
     while ($data=$queryEmpleados->fetch()) {
         # code...
       ?>      
-      <div class="card" style="width: 16rem;">
+      <div class="card" style="width: 20rem;">
         <img class="card-img-top" src="assets/images/user.png"   alt="Card image cap">
         <div class="card-body">
-          <h5 class="card-title"><?php echo $data['apellido']." ".$data['nombre']; ?></h5>
-          <p class="card-text"><?php echo $data['dni']; ?></p>
+          <h5 class="card-title"><?php echo " Oferta de Empleo: ".$data['rubro']; ?></h5>
+          <p class="card-text"><?php echo $data['horario']; ?></p>
+          <p class="card-text"><strong><?php echo "Oferta abierta desde: ".$data['desde']."-Hasta:".$data['hasta']; ?></strong></p> 
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><?php echo $data['rubro']; ?></li> 
-          <li class="list-group-item"><?php echo $data['cargo']; ?></li>
-          <li class="list-group-item"><?php echo $data['email']; ?></li>
-          <li class="list-group-item">Carrera que estudia:</li>
-          <li class="list-group-item"></li>
+          <li class="list-group-item"><?php echo "Persona que solicita:".$data['nombre'].", ".$data['apellido']; ?></li> 
+          <li class="list-group-item"><?php echo $data['oferta']; ?></li>
           <li class="list-group-item"><a href="#" class="card-link">Enviar Mensaje</a></li>
           <li class="list-group-item"><a href="#" class="card-link">Ver Perfil</a></li>
         </ul>
@@ -302,7 +301,7 @@ if (isset($_GET['id_dato'])) {
           $('.collapse').collapse({toggle: false});
           $('#name').change(function(){
             var dato=$(this).val();
-            location.href="http://localhost:8080/GitHub/NaisYob/filtro_empleado.php?id_dato="+dato;
+            location.href="http://localhost:8080/GitHub/NaisYob/ofertas_trabajo.php?id_dato="+dato;
           })
 
         })

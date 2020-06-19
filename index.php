@@ -50,7 +50,7 @@ if (isset($_SESSION['active']) and $_SESSION['active']==true) {
           </li>
         </ul>
         <div class="form-inline">
-          <a href="login.html" class="login mr-4">Iniciar Sessión</a>
+          <a href="login.php" class="login mr-4">Iniciar Sessión</a>
             <a href="Empleador_Empleado.php" class="btn btn-primary btn-theme">Registrarme</a>
         </div>
       </div>

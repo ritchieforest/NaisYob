@@ -1,8 +1,14 @@
  <?php 
+
  session_start();
  if (!isset($_SESSION['active']) and $_SESSION['active']!=true) {
   header('location: index.php');
 }
+include 'ajax/conexion.php';
+
+$sqlExpLab=$pdo->query("select  e.desc_experiencia as exp,c.nombre_cargo as cargo from experiencia_laboral e inner join cargo c on c.id_cargo=e.rela_cargo inner join empleado emp on emp.id_empleado=rela_empleado inner join persona p on p.id_persona=emp.rela_persona where emp.rela_persona=".$_SESSION['persona']);
+$sqlDatosAcad=$pdo->query("select c.nombre_carrera as carrera, d.nombre_institucion as edu from datos_academicos dat inner join carrera c on c.id_carrera=dat.rela_carrera inner join empleado emp on emp.id_empleado=dat.rela_empleado inner join persona p on p.id_persona=emp.rela_persona inner join intitucion_educativa d on d.id_institucion_educativa=c.rela_institucion where emp.rela_persona=".$_SESSION['persona']);
+
 ?>
 
 <!doctype html>
@@ -41,10 +47,10 @@
           <li class="nav-item active">
             <a class="nav-link" href="mi_perfil.php">Mi Perfil</a>
           </li>
-          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==2 ) {
+          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==3) {
            ?>
            <li class="nav-item">
-            <a class="nav-link" href="about.php">Filtros de Ofertas de Trabajo</a>
+            <a class="nav-link" href="ofertas_trabajo.php">Filtros de Ofertas de Trabajo</a>
           </li>
         <?php } ?>
         <?php if($_SESSION['tipo']==2 or $_SESSION['tipo']==3){  ?>
@@ -81,7 +87,11 @@
       Estudios Realizados
     </div>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item">Agregar</li>
+      <?php if ($sqlDatosAcad->rowCount()>0) { while($data=$sqlDatosAcad->fetch()){?>
+        <li class="list-group-item"><?php echo $data['edu']."-".$data['carrera']; ?></li>
+      <?php }}else{ ?>
+        <li class="list-group-item">Agregar</li>
+      <?php }?>
       <div id="accordion">
         <div class="card">
           <div class="card-header" id="headingOne">
@@ -92,7 +102,7 @@
             </h5>
           </div>
 
-          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+          <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
             <div class="card-body">
               <form method="POST">
                 <div class="row">
@@ -100,9 +110,9 @@
                     <label>Institucion Educativa</label>
                   </div>
                   <div class="col-md-6">
-                   <select>
+                   <select name="universidad">
                     <option>Seleccione Una Opcion</option>
-                    <option>Universidad Nacional Formosa</option>
+                    <option value="1">Universidad Nacional Formosa</option>
                   </select>
                 </div>
               </div>
@@ -112,16 +122,33 @@
                 <div class="col-md-6"></div>
               </div><br><br>
               <div class="row">
-                <button class="btn btn-danger mx-auto" name="enviar">Agregar Estudios</button>
+                <button class="btn btn-danger mx-auto" name="educacion">Agregar Estudios</button>
                 
               </div><br>
+              <?php
+              if (isset($_POST['educacion'])) {
+               $consultar=$pdo->query("select id_empleado as id from persona p inner join empleado e on p.id_persona=e.rela_persona where rela_persona=".$_SESSION['persona']);
+               if ($consultar->rowCount()>0) {
+                $empleadoId=$consultar->fetch();
+                $query=$pdo->query("insert into carrera(nombre_carrera,rela_institucion) values('".$_POST['carrera']."',".$_POST['universidad'].")");
+                if ($query->rowCount()>0) {
+                  $lastIdCarrera=$pdo->lastInsertId();
+                  $insertDatosAcademico=$pdo->query("insert into datos_academicos(rela_carrera,rela_empleado) values(".$lastIdCarrera.",".$empleadoId['id'].")");
+                  if ($insertDatosAcademico->rowCount()>0) {
+                   print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
 
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ul>
+                 }
+               }
+             }
+           }
+
+           ?>
+         </form>
+       </div>
+     </div>
+   </div>
+ </div>
+</ul>
 </div>
 </div>
 <div class="col-md-4">
@@ -130,78 +157,164 @@
       Experiencia Laboral
     </div>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item">Agregar</li>
+      <?php if ($sqlExpLab->rowCount()>0) { while($data=$sqlExpLab->fetch()){?>
+        <li class="list-group-item"><?php echo $data['exp']."-".$data['cargo']; ?></li>
+      <?php }}else{ ?>
+        <li class="list-group-item">Agrege su Experiencia Laboral</li>  
+      <?php } ?>
       <div id="accordion">
         <div class="card">
           <div class="card-header" id="headingOne">
             <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <button class="btn btn-link" data-toggle="collapse" data-target="#el" aria-expanded="true" aria-controls="collapseOne">
                 Agregar Experiencia Laboral
               </button>
             </h5>
           </div>
 
-          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+          <div id="el" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
             <div class="card-body">
               <form method="POST">
                 <div class="row">
                   <div class="col-md-4">
-                    <label>Lugar de Trabajo</label>
+                    <label>Cargo Laboral</label>
+
                   </div>
                   <div class="col-md-6">
-                    <input type="text" name="Lugar">
-
-                  </div>
+                   <select name="cargo">
+                    <option>Seleccione Una Opcion</option>
+                    <option value="1">Soporte Tecnico-Informatica</option>
+                  </select>
                 </div>
-                <div class="row">
-                  <div class="col-md-4"><label>Pusto de Trabajo</label></div>
-                  <input type="text" name="trabajo">
-                  <div class="col-md-6"></div>
-                </div><br><br>
-                <div class="row">
-                  <button class="btn btn-danger mx-auto" name="enviar">Agregar Experiencia Laboral</button>
+              </div>
+              <div class="row">
+                <div class="col-md-4"><label>Lugar Laboral</label></div>
+                <input type="text" name="trabajo" placeholder="Escriba donde trabajo">
+                <div class="col-md-6"></div>
+              </div><br><br>
+              <div class="row">
+                <button class="btn btn-danger mx-auto" name="enviar">Agregar Experiencia Laboral</button>
 
-                </div><br>
+              </div><br>
+              <?php  
+              if (isset($_POST['enviar'])) {
+                $consultar=$pdo->query("select id_empleado as id from persona p inner join empleado e on p.id_persona=e.rela_persona where rela_persona=".$_SESSION['persona']);
+                if ($consultar->rowCount()>0) {
+                  $empleadoId=$consultar->fetch();
+                  $query=$pdo->query("insert into experiencia_laboral(desc_experiencia,rela_empleado,rela_cargo) values('".$_POST['trabajo']."',".$empleadoId['id'].",".$_POST['cargo'].")");
 
-              </form>
-            </div>
+                  if ($query->rowCount()>0) {
+                    print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
+
+                  }
+                }
+
+              }
+              ?>
+            </form>
           </div>
         </div>
       </div>
-    </ul>
+    </div>
+  </ul>
+</div>
+
+</div>
+</div>
+<div class="col-md-10 mx-auto">
+ <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+  </ol>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img class="d-block w-100" src="imagenes/imagen1.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Aqui Trabajando para el Empleador Tal</h5>
+        <p>...</p>
+      </div>
+    </div>
+    <div class="carousel-item active">
+      <img class="d-block w-100" src="imagenes/imagen1.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Aqui Trabajando para el Empleador Tal</h5>
+        <p>...</p>
+      </div>
+    </div>
+    <div class="carousel-item ">
+      <img class="d-block w-100" src="imagenes/imagen1.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Aqui Trabajando para el Empleador Tal</h5>
+        <p>...</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <img class="d-block w-100" src="imagenes/imagen1.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Aqui Trabajando para el Empleador Tal</h5>
+        <p>...</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <img class="d-block w-100" src="imagenes/imagen1.jpg" alt="First slide">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Aqui Trabajando para el Empleador Tal</h5>
+        <p>...</p>
+      </div>
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div> 
+<div class="col-md-7 mx-auto">
+  <div id="accordion">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Añadir Trabajos Realizados
+          </button>
+        </h5>
+      </div>
+
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+            <form action="mi_perfil.php"  method="POST" enctype="multipart/form-data"/>
+            Añadir imagen: <input name="archivo" id="archivo" type="file"/>
+            <input type="submit" class="btn btn-danger" name="subir" value="Subir imagen"/>
+            <?php 
+                if (isset($_POST['subir'])) {
+                  $consultar=$pdo->query("select id_empleado as id from persona p inner join empleado e on p.id_persona=e.rela_persona where rela_persona=".$_SESSION['persona']);
+                if ($consultar->rowCount()>0) {
+                  $empleadoId=$consultar->fetch();
+                  $imagen=addslashes(file_get_contents($_FILES['archivo']['tmp_name']));
+                  $query=$pdo->query("insert into muro_trabajo(rela_empleado,imagen_trabajo) values(".$empleadoId['id'].",'".$imagen."')");
+
+                  if ($query->rowCount()>0) {
+                    print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
+
+                  }
+                }
+                }
+
+             ?>
+          </form>
+      </div>
+    </div>
   </div>
 </div>
 
-</div>   
-<div class="col-md-6 mx-auto">
-  <span>Imagenes de Trabajos realizados</span>
-  <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-      <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-      <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-      <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-    </ol>
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img class="d-block w-100" src="assets/images/user.png" alt="First slide">
-      </div>
-      <div class="carousel-item">
-        <img class="d-block w-100" src="assets/images/user.png" alt="Second slide">
-      </div>
-      <div class="carousel-item">
-        <img class="d-block w-100" src="assets/images/user.png" alt="Third slide">
-      </div>
-    </div>
-    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
-  </div>
 </div>
+</div>   
+
 <!-- footer-28 block -->
 <section class="w3l-market-footer" >
   <footer class="footer-28" >
@@ -266,9 +379,8 @@
           </div>
         </div>
       </div>
-
-
     </div>
+
   </footer>
 
   <!-- move top -->
