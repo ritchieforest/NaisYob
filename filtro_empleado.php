@@ -1,30 +1,36 @@
+ <?php 
+ session_start();
+ if (!isset($_SESSION['active']) and $_SESSION['active']!=true) {
+  print "<meta http-equiv=Refresh content=\"2 ; url= index.php\">";
+}
+?>
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 
 
-    <title>NaisYob</title>
-    <!-- web fonts -->
-    <!-- //web fonts -->
-    <!-- Template CSS -->
-    <link rel="stylesheet" href="assets/css/style-starter.css">
-    <link rel="stylesheet" href="assets/css/style.css">
- <link rel="stylesheet" href="assets/css/star.css">
+  <title>NaisYob</title>
+  <!-- web fonts -->
+  <!-- //web fonts -->
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="assets/css/style-starter.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/star.css">
 
 
 
-  </head>
-  <body>
-<div class="w3l-bootstrap-header fixed-top">
-  <nav class="navbar navbar-expand-lg navbar-light p-2">
-    <div class="container" style="  height: 50px; " >
-      <a class="navbar-brand" href="index.html"><span class="fa fa-diamond"></span>NaisYob</a>
-    
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+</head>
+<body>
+  <div class="w3l-bootstrap-header fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light p-2">
+      <div class="container" style="  height: 50px; " >
+        <a class="navbar-brand" href="index.html"><span class="fa fa-diamond"></span>NaisYob</a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -32,73 +38,80 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="index.php">Casa</a>
+            <a class="nav-link" href="mi_perfil.php">Mi Perfil</a>
+          </li>
+          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==2 ) {
+           ?>
+           <li class="nav-item">
+            <a class="nav-link" href="about.php">Filtros de Ofertas de Trabajo</a>
+          </li>
+        <?php } ?>
+        <?php if($_SESSION['tipo']==2 or $_SESSION['tipo']==3){  ?>
+          <li class="nav-item">
+            <a class="nav-link" href="filtro_empleado.php">Filtros de Empleado por Rubro</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.php">Acerca De</a>
+            <a class="nav-link" href="crear_oferta.php">Crear Oferta de Trabajo</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contact.php">Contacto</a>
-          </li>
-        </ul>
-        <div class="form-inline">
-          <a href="login.html" class="login mr-4">Iniciar Sessión</a>
-            <a href="Empleador_Empleado.html" class="btn btn-primary btn-theme">Registrarme</a>
-        </div>
-      </div>
+        <?php } ?>
+        <li class="nav-item">
+          <a class="nav-link" href="salir.php">Salir</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 </div>
 <header>
-      <div  class="alert alert-info" style="position: relative;  top:100px">
-      <h1>Bienvenido</h1>
-       <h6>Desea Buscar Empleo</h6>
-       <select class="form-control" id="name">
-         <option>Eliga un Rubro por el que desee buscar empleados</option>
-         <option value="1">Informatica</option> 
-       </select>
-      </div>
-    </header>
-    <br>
-    <br>
-    <br><br>
-    <?php 
-      if (isset($_GET['id_dato'])) {
-        include 'ajax/conexion.php';
-          $sql="select r.desc_rubro as rubro,c.nombre_cargo as cargo,u.user_name as email ,s.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil from persona p 
-             inner join empleado e on p.id_persona=e.rela_persona inner join cargo_empleado ce on e.id_empleado=ce.rela_empleado 
-             inner join cargo c on c.id_cargo=ce.rela_cargo inner join rubro r on r.id_rubro=c.rela_rubro
-             inner join usuario u on p.id_persona=u.rela_persona 
-             inner join sexo s on s.id_sexo=p.rela_sexo where r.id_rubro=".$_GET['id_dato']."";
-          $queryEmpleados=$pdo->query($sql);
+  <div  class="alert alert-info" style="position: relative;  top:100px">
+    <h1>Bienvenido</h1>
+    <h6>Desea Buscar Empleo</h6>
+    <select class="form-control" id="name">
+     <option>Eliga un Rubro por el que desee buscar empleados</option>
+     <option value="1">Informatica</option> 
+   </select>
+ </div>
+</header>
+<br>
+<br>
+<br><br>
+<?php 
+if (isset($_GET['id_dato'])) {
+  include 'ajax/conexion.php';
+  $sql="select r.desc_rubro as rubro,c.nombre_cargo as cargo,u.user_name as email ,s.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil from persona p 
+  inner join empleado e on p.id_persona=e.rela_persona inner join cargo_empleado ce on e.id_empleado=ce.rela_empleado 
+  inner join cargo c on c.id_cargo=ce.rela_cargo inner join rubro r on r.id_rubro=c.rela_rubro
+  inner join usuario u on p.id_persona=u.rela_persona 
+  inner join sexo s on s.id_sexo=p.rela_sexo where r.id_rubro=".$_GET['id_dato']."";
+  $queryEmpleados=$pdo->query($sql);
 
-     ?>
-     <?php if ($queryEmpleados->rowCount()>0) {
-      while ($data=$queryEmpleados->fetch()) {
+  ?>
+  <?php if ($queryEmpleados->rowCount()>0) {
+    while ($data=$queryEmpleados->fetch()) {
         # code...
       ?>      
       <div class="card" style="width: 16rem;">
-      <img class="card-img-top" src="assets/images/user.png"   alt="Card image cap">
-      <div class="card-body">
-        <h5 class="card-title"><?php echo $data['apellido']." ".$data['nombre']; ?></h5>
-        <p class="card-text"><?php echo $data['dni']; ?></p>
+        <img class="card-img-top" src="assets/images/user.png"   alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title"><?php echo $data['apellido']." ".$data['nombre']; ?></h5>
+          <p class="card-text"><?php echo $data['dni']; ?></p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><?php echo $data['rubro']; ?></li> 
+          <li class="list-group-item"><?php echo $data['cargo']; ?></li>
+          <li class="list-group-item"><?php echo $data['email']; ?></li>
+          <li class="list-group-item">Carrera que estudia:</li>
+          <li class="list-group-item"></li>
+          <li class="list-group-item"><a href="#" class="card-link">Enviar Mensaje</a></li>
+          <li class="list-group-item"><a href="#" class="card-link">Ver Perfil</a></li>
+        </ul>
       </div>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item"><?php echo $data['rubro']; ?></li> 
-        <li class="list-group-item"><?php echo $data['cargo']; ?></li>
-        <li class="list-group-item"><?php echo $data['email']; ?></li>
-        <li class="list-group-item">Carrera que estudia:</li>
-        <li class="list-group-item"></li>
-        <li class="list-group-item"><a href="#" class="card-link">Enviar Mensaje</a></li>
-        <li class="list-group-item"><a href="#" class="card-link">Ver Perfil</a></li>
-      </ul>
-    </div>
-<?php
-      }  }
-} ?>
-    
-      <!-- footer-28 block -->
-   <section class="w3l-market-footer" >
+      <?php
+    }  }
+  } ?>
+
+  <!-- footer-28 block -->
+  <section class="w3l-market-footer" >
     <footer class="footer-28" >
       <div class="footer-bg-layer" >
         <div class="container py-lg-3">
@@ -106,7 +119,7 @@
             <div class="col-md-6 footer-list-28 mt-5" style="position: absolute;  top:1500px; left:  50px;">
               <h6 class="footer-title-28">Información del contacto</h6>
               <ul>
-                
+
                 <li>
                   <p><strong>Teléfono</strong> : <a href="tel:+5493704501577">+5493704501577</a></p>
                 </li>
@@ -162,15 +175,15 @@
           </div>
         </div>
 
-            
-          </div>
-        </footer>
 
-        <!-- move top -->
-        <button onclick="topFunction()" id="movetop" title="Go to top">
-          &#10548;
-        </button>
-        <script>
+      </div>
+    </footer>
+
+    <!-- move top -->
+    <button onclick="topFunction()" id="movetop" title="Go to top">
+      &#10548;
+    </button>
+    <script>
           // When the user scrolls down 20px from the top of the document, show the button
           window.onscroll = function () {
             scrollFunction()
@@ -283,17 +296,17 @@
           });
         });
       </script>
-  <script type="text/javascript">
-    
-    $(document).ready(function(){
-      $('.collapse').collapse({toggle: false});
-      $('#name').change(function(){
-        var dato=$(this).val();
-        location.href="http://localhost:8080/NaisYob/filtro_empleado.php?id_dato="+dato;
-      })
+      <script type="text/javascript">
 
-    })
+        $(document).ready(function(){
+          $('.collapse').collapse({toggle: false});
+          $('#name').change(function(){
+            var dato=$(this).val();
+            location.href="http://localhost:8080/NaisYob/filtro_empleado.php?id_dato="+dato;
+          })
 
-  </script>
-</body>
-</html>
+        })
+
+      </script>
+    </body>
+    </html>

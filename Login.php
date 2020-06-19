@@ -1,7 +1,9 @@
- <!--
-Author: W3layouts
-Author URL: http://w3layouts.com
--->
+ <?php 
+session_start();
+if (isset($_SESSION['active']) and $_SESSION['active']==true) {
+  print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
+}
+  ?>
 <!doctype html>
 <html lang="en">
    <head>
@@ -130,11 +132,16 @@ if(typeof _bsa !== 'undefined' && _bsa) {
 
             if (isset($_POST['iniciar'])) {
               include 'ajax/conexion.php';
-              $queryVerificacion=$pdo->query("select count(*) as cantidad from usuario where user_name like '%".$_POST['user']."%' and password like '%".$_POST['pass']."%'");
+              $queryVerificacion=$pdo->query("select count(*) as cantidad,rela_persona as persona, rela_tipo_usuario as tipo from usuario where user_name like '%".$_POST['user']."%' and password like '%".$_POST['pass']."%'");
               $cantidad=$queryVerificacion->fetch();
               if ($cantidad['cantidad']>0) {
                 echo "<p>Usuario Correcto</p>";
+                $_SESSION['active']=true;
+                $_SESSION['persona']=$cantidad['persona'];
+                $_SESSION['tipo']=$cantidad['tipo'];
+                print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
               }else{
+                session_destroy();
                 echo "<p>Usuario Incorrecto</>";
               }
             }

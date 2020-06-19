@@ -1,7 +1,10 @@
-<!--
-Author: W3layouts
-Author URL: http://w3layouts.com
--->
+ <?php 
+ session_start();
+ if (!isset($_SESSION['active']) and $_SESSION['active']!=true) {
+  print "<meta http-equiv=Refresh content=\"2 ; url= index.php\">";
+}
+?>
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -81,22 +84,29 @@ Author URL: http://w3layouts.com
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="index.php">Casa</a>
+            <a class="nav-link" href="mi_perfil.php">Mi Perfil</a>
+          </li>
+          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==2 ) {
+           ?>
+           <li class="nav-item">
+            <a class="nav-link" href="about.php">Filtros de Ofertas de Trabajo</a>
+          </li>
+        <?php } ?>
+        <?php if($_SESSION['tipo']==2 or $_SESSION['tipo']==3){  ?>
+          <li class="nav-item">
+            <a class="nav-link" href="filtro_empleado.php">Filtros de Empleado por Rubro</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.php">Acerca De</a>
+            <a class="nav-link" href="crear_oferta.php">Crear Oferta de Trabajo</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contact.php">Contacto</a>
-          </li>
-        </ul>
-        <div class="form-inline">
-          <a href="login.html" class="login mr-4">Iniciar Sesión</a>
-          <a href="Empleador_Empleado.html" class="btn btn-primary btn-theme">Registrarme</a>
-        </div>
-      </div>
+        <?php } ?>
+        <li class="nav-item">
+          <a class="nav-link" href="salir.php">Salir</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 </div>
 <!-- index-block1 -->
 
@@ -147,12 +157,17 @@ Author URL: http://w3layouts.com
           <?php 
           if (isset($_POST['iniciar'])) {
             include 'ajax/conexion.php';
-            $queryInsertOfertas=$pdo->query("insert into oferta_empleo(rela_rubro,rela_sexo,horario,desc_oferta,fecha_desde,fecha_hasta,rela_empleador) values(".$_POST['rubro'].",".$_POST['sexo'].",'".$_POST['horario']."','".$_POST['des']."',NOW(),'".$_POST['hasta']."',4)");
-            if ($queryInsertOfertas->rowCount()>0) {
-              echo "Alta Correcta";
-            }else{
-              echo "No se pudo ingresar la oferta de trabajo";
-            }
+            $consultar=$pdo->query("select e.id_empleado as id from persona p inner join empleador e on p.id_persona=e.rela_persona where rela_persona=".$_SESSION['persona']);
+            if ($consltar->rowCount()>0) {
+              $datos=$consultar->fetch();
+              $queryInsertOfertas=$pdo->query("insert into oferta_empleo(rela_rubro,rela_sexo,horario,desc_oferta,fecha_desde,fecha_hasta,rela_empleador) values(".$_POST['rubro'].",".$_POST['sexo'].",'".$_POST['horario']."','".$_POST['des']."',NOW(),'".$_POST['hasta']."',".$data['id'].")");
+              if ($queryInsertOfertas->rowCount()>0) {
+                echo "Alta Correcta";
+              }else{
+                echo "No se pudo ingresar la oferta de trabajo";
+              }
+            }            
+            
           }
 
           ?>

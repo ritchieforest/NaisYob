@@ -1,3 +1,10 @@
+ <?php 
+ session_start();
+ if (!isset($_SESSION['active']) and $_SESSION['active']!=true) {
+  header('location: index.php');
+}
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -32,22 +39,29 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="index.php">Casa</a>
+            <a class="nav-link" href="mi_perfil.php">Mi Perfil</a>
+          </li>
+          <?php if ($_SESSION['tipo']==1 or $_SESSION['tipo']==2 ) {
+           ?>
+           <li class="nav-item">
+            <a class="nav-link" href="about.php">Filtros de Ofertas de Trabajo</a>
+          </li>
+        <?php } ?>
+        <?php if($_SESSION['tipo']==2 or $_SESSION['tipo']==3){  ?>
+          <li class="nav-item">
+            <a class="nav-link" href="filtro_empleado.php">Filtros de Empleado por Rubro</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.php">Acerca De</a>
+            <a class="nav-link" href="crear_oferta.php">Crear Oferta de Trabajo</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contact.php">Contacto</a>
-          </li>
-        </ul>
-        <div class="form-inline">
-          <a href="login.html" class="login mr-4">Iniciar Sessión</a>
-          <a href="Empleador_Empleado.html" class="btn btn-primary btn-theme">Registrarme</a>
-        </div>
-      </div>
+        <?php } ?>
+        <li class="nav-item">
+          <a class="nav-link" href="salir.php">Salir</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 </div>
 <header>
   <div  class="alert alert-info" style="position: relative;  top:100px">
@@ -94,11 +108,11 @@
               </div>
               <div class="row">
                 <div class="col-md-4"><label>Ingrese la Carrera</label></div>
-              <input type="text" name="carrera">
+                <input type="text" name="carrera">
                 <div class="col-md-6"></div>
               </div><br><br>
               <div class="row">
-              <button class="btn btn-danger mx-auto" name="enviar">Agregar Estudios</button>
+                <button class="btn btn-danger mx-auto" name="enviar">Agregar Estudios</button>
                 
               </div><br>
 
@@ -129,7 +143,27 @@
 
           <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
             <div class="card-body">
+              <form method="POST">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label>Lugar de Trabajo</label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" name="Lugar">
 
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4"><label>Pusto de Trabajo</label></div>
+                  <input type="text" name="trabajo">
+                  <div class="col-md-6"></div>
+                </div><br><br>
+                <div class="row">
+                  <button class="btn btn-danger mx-auto" name="enviar">Agregar Experiencia Laboral</button>
+
+                </div><br>
+
+              </form>
             </div>
           </div>
         </div>
@@ -137,34 +171,6 @@
     </ul>
   </div>
 </div>
-<div class="col-md-4">
-  <div class="card" style="width: 18rem;">
-    <div class="card-header">
-      Conocimientos
-    </div>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">Agregar</li>
-      <div id="accordion">
-        <div class="card">
-          <div class="card-header" id="headingOne">
-            <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                Conocimientos
-              </button>
-            </h5>
-          </div>
-
-          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-            <div class="card-body">
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </ul>
-  </div>
-</div>
-
 
 </div>   
 <div class="col-md-6 mx-auto">

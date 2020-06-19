@@ -1,7 +1,9 @@
-<!--
-Author: W3layouts
-Author URL: http://w3layouts.com
--->
+ <?php 
+session_start();
+if (isset($_SESSION['active']) and $_SESSION['active']==true) {
+  print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
+}
+  ?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -77,7 +79,7 @@ Author URL: http://w3layouts.com
 
 <div class="new-arrivals-w3agile">
           <div class="container">
-            <h2 class="tittle">Trabajaores Destacados</h2>
+            <h2 class="tittle">Trabajadores Destacados</h2>
             <div class="arrivals-grids">
               <div class="col-md-3 arrival-grid simpleCart_shelfItem" style="position: absolute;  left: 50px;">
                 <div class="grid-arr">
