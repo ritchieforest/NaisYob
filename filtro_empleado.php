@@ -3,6 +3,14 @@
  if (!isset($_SESSION['active']) and $_SESSION['active']!=true) {
   print "<meta http-equiv=Refresh content=\"2 ; url= index.php\">";
 }
+include 'ajax/conexion.php';
+$queryEmpleador=$pdo->query("select e.id_empleador as id_emp from persona p inner join empleador e on p.id_persona=e.rela_persona where e.rela_persona=".$_SESSION['persona']);
+$id_empleador=0;
+if($queryEmpleador->rowCount()>0){
+  $fetch=$queryEmpleador->fetch();
+  echo var_dump($fetch);
+  $id_empleador=$fetch['id_emp'];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -78,7 +86,7 @@
 <?php 
 if (isset($_GET['id_dato'])) {
   include 'ajax/conexion.php';
-  $sql="select r.desc_rubro as rubro,c.nombre_cargo as cargo,u.user_name as email ,s.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil from persona p 
+  $sql="select e.id_empleado as id_emp,r.desc_rubro as rubro,c.nombre_cargo as cargo,u.user_name as email ,s.desc_sexo as sexo,p.nombres as nombre,p.apellidos as apellido,p.dni as dni, p.cuil as cuil from persona p 
   inner join empleado e on p.id_persona=e.rela_persona inner join cargo_empleado ce on e.id_empleado=ce.rela_empleado 
   inner join cargo c on c.id_cargo=ce.rela_cargo inner join rubro r on r.id_rubro=c.rela_rubro
   inner join usuario u on p.id_persona=u.rela_persona 
@@ -102,13 +110,44 @@ if (isset($_GET['id_dato'])) {
           <li class="list-group-item"><?php echo $data['email']; ?></li>
           <li class="list-group-item">Carrera que estudia:</li>
           <li class="list-group-item"></li>
-          <li class="list-group-item"><a href="#" class="card-link">Enviar Mensaje</a></li>
-          <li class="list-group-item"><a href="#" class="card-link">Ver Perfil</a></li>
+          <li class="list-group-item"><a href="#" data-toggle="modal" data-target="#exampleModal" class="card-link">Enviar Mensaje</a></li>
+          <li class="list-group-item"><a  href="#" class="card-link">Ver Perfil</a></li>
         </ul>
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Enviar Mensaje</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form method="POST" id="sendMensaje">
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Emisor:</label>
+                    <input type="text" value="<?php echo $data['apellido']." ".$data['nombre']; ?>" class="form-control" id="recipient-name">
+                  </div>
+                  <input type="text" name="" value="<?php echo $data['id_emp'];?>" id="emp" hidden>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label">Message:</label>
+                    <textarea class="form-control" id="mensaje"></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Send message</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <?php
     }  }
   } ?>
+
+<!-- Modal -->
 
   <!-- footer-28 block -->
   <section class="w3l-market-footer" >
@@ -208,15 +247,34 @@ if (isset($_GET['id_dato'])) {
       <!-- //footer-28 block -->
 
       <!-- jQuery, Bootstrap JS -->
-      <script src="assets/js/jquery.min.js"></script>
+      <script src="jquery-3.1.1.min.js"></script>
       <script src="assets/js/bootstrap.min.js"></script>
+      <script type="text/javascript">
+        $(document).ready(function(){
+          $('#sendMensaje').submit(function(e){
+            e.preventDefault();
+             var id_empleador="<?php echo $id_empleador; ?>";
+             var id_empleado=$('#emp').val();
+             var mensaje =$('#mensaje').val();
+             $.ajax({
+               url:"enviar_mesaje.php",
+               type:"POST",
+               data:{'empleado':id_empleado,'empleador':id_empleador,'mensaje':mensaje},
+             }).done(function(res){
+               alert('Mensaje Enviado');
+             })
+
+          })
+        })
+          
+      </script>
 
       <!-- Template JavaScript -->
       
       <script src="assets/js/owl.carousel.js"></script>
 
       <!-- script for owlcarousel -->
-      <script>
+   <script>
         $(document).ready(function () {
           $('.owl-one').owlCarousel({
             loop: true,

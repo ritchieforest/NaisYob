@@ -6,7 +6,7 @@
 }
 include 'ajax/conexion.php';
 
-$sqlExpLab=$pdo->query("select  e.desc_experiencia as exp,c.nombre_cargo as cargo from experiencia_laboral e inner join cargo c on c.id_cargo=e.rela_cargo inner join empleado emp on emp.id_empleado=rela_empleado inner join persona p on p.id_persona=emp.rela_persona where emp.rela_persona=".$_SESSION['persona']);
+$sqlExpLab=$pdo->query("select  e.desc_experiencia as exp,c.nombre_cargo as cargo from experiencia_laborales e inner join cargo c on c.id_cargo=e.rela_cargo inner join empleado emp on emp.id_empleado=rela_empleado inner join persona p on p.id_persona=emp.rela_persona where emp.rela_persona=".$_SESSION['persona']);
 $sqlDatosAcad=$pdo->query("select c.nombre_carrera as carrera, d.nombre_institucion as edu from datos_academicos dat inner join carrera c on c.id_carrera=dat.rela_carrera inner join empleado emp on emp.id_empleado=dat.rela_empleado inner join persona p on p.id_persona=emp.rela_persona inner join intitucion_educativa d on d.id_institucion_educativa=c.rela_institucion where emp.rela_persona=".$_SESSION['persona']);
 
 ?>
@@ -201,7 +201,7 @@ $sqlDatosAcad=$pdo->query("select c.nombre_carrera as carrera, d.nombre_instituc
                 $consultar=$pdo->query("select id_empleado as id from persona p inner join empleado e on p.id_persona=e.rela_persona where rela_persona=".$_SESSION['persona']);
                 if ($consultar->rowCount()>0) {
                   $empleadoId=$consultar->fetch();
-                  $query=$pdo->query("insert into experiencia_laboral(desc_experiencia,rela_empleado,rela_cargo) values('".$_POST['trabajo']."',".$empleadoId['id'].",".$_POST['cargo'].")");
+                  $query=$pdo->query("insert into experiencia_laborales(desc_experiencia,rela_cargo,rela_empleado) values('".$_POST['trabajo']."',".$_POST['cargo'].",".$empleadoId['id'].")");
 
                   if ($query->rowCount()>0) {
                     print "<meta http-equiv=Refresh content=\"2 ; url= mi_perfil.php\">";
